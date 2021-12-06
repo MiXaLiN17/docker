@@ -1,0 +1,4 @@
+.idea
+.editorconfig
+logs/*
+.env

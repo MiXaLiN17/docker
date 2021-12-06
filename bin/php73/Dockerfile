@@ -1,9 +1,5 @@
+# Образ с DockerHub, включает Apache и PHP
 FROM php:7.3-apache-stretch
-
-# Surpresses debconf complaints of trying to install apt packages interactively
-# https://github.com/moby/moby/issues/4032#issuecomment-192327844
-
-ARG DEBIAN_FRONTEND=noninteractive
 
 # Update
 RUN apt-get -y update --fix-missing && \
@@ -23,31 +19,19 @@ RUN apt-get -y update && \
 
 # Install xdebug
 RUN pecl install xdebug-2.7.2 && \
-    docker-php-ext-enable xdebug
-
-# Install redis
-RUN pecl install redis-5.0.2 && \
-    docker-php-ext-enable redis
+    docker-php-ext-enable xdebug \
 
 # Other PHP7 Extensions
-
-RUN docker-php-ext-install pdo_mysql && \
-    docker-php-ext-install pdo_sqlite && \
-    docker-php-ext-install mysqli && \
-    docker-php-ext-install curl && \
+RUN docker-php-ext-install mysqli && \
     docker-php-ext-install tokenizer && \
     docker-php-ext-install json && \
+    docker-php-ext-install opcache && \
     docker-php-ext-install zip && \
     docker-php-ext-install -j$(nproc) intl && \
     docker-php-ext-install mbstring && \
-    docker-php-ext-install opcache && \
+    docker-php-ext-install soap && \
     docker-php-ext-install gettext
 
-RUN apt-get update -y \
-  && apt-get install -y \
-    libxml2-dev \
-  && apt-get clean -y \
-  && docker-php-ext-install soap
 # Install Freetype
 RUN apt-get -y update && \
     apt-get --no-install-recommends install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
@@ -58,7 +42,13 @@ RUN apt-get -y update && \
 # Enable apache modules
 RUN a2enmod rewrite headers
 
+ADD xdebug.ini $PHP_INI_DIR/conf.d/xdebug.ini
+ADD php.ini $PHP_INI_DIR/php.ini
+
+RUN usermod -u 1000 www-data
+RUN groupmod -g 1000 www-data
 
 # Cleanup
 RUN rm -rf /usr/src/*
-RUN usermod -u 1000 www-data
+# Сообщаем, какие порты контейнера слушать
+EXPOSE 80

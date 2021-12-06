@@ -1,5 +1,4 @@
-# Образ с DockerHub, включает Apache и PHP
-FROM php:7.4-apache
+FROM php:8.0.13-apache
 
 # Update
 RUN apt-get -y update --fix-missing && \
@@ -17,15 +16,12 @@ RUN apt-get -y update && \
     rm -rf /var/lib/apt/lists/* && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Other PHP7 Extensions
-RUN docker-php-ext-install mysqli && \
-    docker-php-ext-install tokenizer && \
-    docker-php-ext-install json && \
-    docker-php-ext-install opcache && \
-    docker-php-ext-install -j$(nproc) intl && \
-    docker-php-ext-install soap && \
-    docker-php-ext-install gettext
 
+# Other PHP8 Extensions
+RUN docker-php-ext-install opcache && \
+    docker-php-ext-install zip && \
+    docker-php-ext-install mysqli && \
+    docker-php-ext-install -j$(nproc) intl
 
 # Install xdebug
 RUN pecl install xdebug && \

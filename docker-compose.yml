@@ -6,17 +6,15 @@ services:
       context: ./bin/${PHPVERSION}
     container_name: '${COMPOSE_PROJECT_NAME}_php'
     restart: always
-    hostname: bitrix
-    domainname: loc
     volumes:
       - ${DOCUMENT_ROOT}:/var/www/html
-      - ./bin/${PHPVERSION}/php.ini:/usr/local/etc/php/php.ini
       - ${VHOSTS_DIR}:/etc/apache2/sites-enabled
+      - ${VHOSTS_DIR}:/etc/apache2/sites-available
       - ${APACHE_LOG_DIR}:/var/log/apache2
     ports:
       - "${INTERFACE}:${HOST_MACHINE_UNSECURE_HOST_PORT}:80"
       - "${INTERFACE}:${HOST_MACHINE_SECURE_HOST_PORT}:443"
-    links:
+    depends_on:
       - mysql
     networks:
       bitrix:
@@ -33,13 +31,10 @@ services:
       #      Можно смонтировать базу на папку, чтобы она не удалялась при удалении контейнера
       #      - ${MYSQL_DATA_DIR}:/var/lib/mysql
       #      монтируем файл конфигурации MySQL внутрь контейнера
-      - ./bin/${DATABASE}/my.cnf:/etc/mysql/my.cnf
       - ${MYSQL_LOG_DIR}:/var/log/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     networks:
       bitrix:
         ipv4_address: 172.16.238.3
@@ -53,9 +48,10 @@ services:
     depends_on:
       - mysql
     environment:
-      # название хоста в сети www_default
       PMA_USER: root
       PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PMA_ARBITRARY: 1
+      PMA_HOST: ${COMPOSE_PROJECT_NAME}_database
     networks:
       bitrix:
         ipv4_address: 172.16.238.4
