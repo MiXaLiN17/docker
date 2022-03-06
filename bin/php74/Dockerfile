@@ -28,8 +28,8 @@ RUN docker-php-ext-install mysqli && \
 
 
 # Install xdebug
-RUN pecl install xdebug && \
-    docker-php-ext-enable xdebug
+#RUN pecl install xdebug && \
+#    docker-php-ext-enable xdebug
 
 # Install Freetype
 RUN apt-get -y update && \
@@ -43,10 +43,11 @@ RUN apt-get -y update && \
 RUN a2enmod rewrite headers
 
 ADD php.ini $PHP_INI_DIR/php.ini
-ADD xdebug.ini $PHP_INI_DIR/conf.d/xdebug.ini
+#ADD xdebug.ini $PHP_INI_DIR/conf.d/xdebug.ini
 
 RUN usermod -u 1000 www-data
 RUN groupmod -g 1000 www-data
+
 # Cleanup
 RUN rm -rf /usr/src/*
 
