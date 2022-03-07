@@ -1,4 +1,6 @@
 .idea
 .editorconfig
 logs/*
+src/*
+data/*
 .env
